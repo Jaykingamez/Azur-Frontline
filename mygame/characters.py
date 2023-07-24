@@ -106,6 +106,10 @@ class AzurCharacter(LivingMixin, DefaultCharacter):
     xp = AttributeProperty(0)
     credits = AttributeProperty(0)
 
+    @property
+    def carrying_capacity(self):
+        return self.body + (self.body / 10 * 5)
+
     def at_defeat(self):
         """Characters roll on the death table"""
         if self.location.allow_death:
