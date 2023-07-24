@@ -1,0 +1,1 @@
+@"C:\Users\jayki\Documents\Open Source\Azur Frontline\env\Scripts\python.exe" "C:\Users\jayki\Documents\Open Source\Azur Frontline\env\Scripts\evennia_launcher.py" %*
