@@ -41,9 +41,6 @@ class TestCharacters(BaseEvenniaTest):
 
         self.character.hp = 0
         self.assertEqual(self.character.hurt_level, "|RCollapsed!|n")
-    
-    def test_carrying_capacity(self):
-        self.assertEqual(self.character.carrying_capacity, 30)
         
     def test_at_pay(self):
         self.character.credits = 100 

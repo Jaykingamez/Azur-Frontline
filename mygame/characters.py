@@ -1,6 +1,8 @@
 
 from evennia import DefaultCharacter, AttributeProperty
 from evennia.contrib.rpg.dice import roll
+from evennia.utils.utils import lazy_property
+from equipment import EquipmentHandler 
 from utils.rules import DeathSystem
 
 class LivingMixin:
@@ -96,8 +98,8 @@ class AzurCharacter(LivingMixin, DefaultCharacter):
     armor = 2
     fate_points = 2
 
-    charclass = AttributeProperty("Assault Rifle")
-    charrace = AttributeProperty("Doll")
+    char_class = AttributeProperty("Assault Rifle")
+    char_race = AttributeProperty("Doll")
 
     background = ""
     knowledge_dict = {}
@@ -106,9 +108,9 @@ class AzurCharacter(LivingMixin, DefaultCharacter):
     xp = AttributeProperty(0)
     credits = AttributeProperty(0)
 
-    @property
-    def carrying_capacity(self):
-        return self.body + (self.body / 10 * 5)
+    @lazy_property 
+    def equipment(self):
+        return EquipmentHandler(self)
 
     def at_defeat(self):
         """Characters roll on the death table"""
@@ -126,4 +128,25 @@ class AzurCharacter(LivingMixin, DefaultCharacter):
         self.location.msg_contents(
             "$You() collapse in a heap, embraced by death.",
             from_obj=self) 
-        # TODO - go back into chargen to make a new character!      
+        # TODO - go back into chargen to make a new character!
+
+    def at_pre_object_receive(self, moved_object, source_location, **kwargs): 
+        """Called by Evennia before object arrives 'in' this character (that is,
+        if they pick up something). If it returns False, move is aborted.
+        
+        """ 
+        return self.equipment.validate_slot_usage(moved_object)
+    
+    def at_object_receive(self, moved_object, source_location, **kwargs): 
+        """ 
+        Called by Evennia when an object arrives 'in' the character.
+        
+        """
+        self.equipment.add(moved_object)
+
+    def at_object_leave(self, moved_object, destination, **kwargs):
+        """ 
+        Called by Evennia when object leaves the Character. 
+        
+        """
+        self.equipment.remove(moved_object)     

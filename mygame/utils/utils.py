@@ -9,7 +9,7 @@ Value: ~|y{value}|n credits{carried}
 
 {desc}
 
-Weight: |w{size}|n, Used from: |w{use_slot_name}|n
+Weight: |w{size}|n, Used from: |w{use_weight_name}|n
 Quality: |w{quality}|n, Uses: |wuses|n
 Attacks using |w{attack_type_name}|n against |w{defense_type_name}|n
 Damage roll: |w{damage_roll}|n""".strip()
@@ -43,7 +43,7 @@ def get_obj_stats(obj, owner=None):
         carried=carried,
         desc=obj.db.desc,
         size=obj.size,
-        use_slot_name=obj.inventory_use_slot.value,
+        use_weight_name=obj.inventory_use_slot.value,
         quality=getattr(obj, "quality", "N/A"),
         uses=getattr(obj, "uses", "N/A"),
         attack_type_name=attack_type.value if attack_type else "No attack",

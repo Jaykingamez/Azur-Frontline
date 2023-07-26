@@ -38,7 +38,7 @@ class AzurObject(DefaultObject):
         """The main display - show object stats""" 
         return get_obj_stats(self, owner=looker)
     
-    # custom evadventure methods
+    # custom Azur methods
 
     def has_obj_type(self, objtype): 
         """Check if object is of a certain type""" 
@@ -185,7 +185,7 @@ def get_bare_hands():
     return _BARE_HANDS
 
 
-class AzurAmor(AzurObject): 
+class AzurArmor(AzurObject): 
     obj_type = ObjType.ARMOR
     inventory_use_slot = WieldLocation.UPPER_BODY
 
