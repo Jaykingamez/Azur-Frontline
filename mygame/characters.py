@@ -5,6 +5,9 @@ from evennia.utils.utils import lazy_property
 from equipment import EquipmentHandler 
 from utils.rules import DeathSystem
 
+from enums.job import Job
+from enums.race import Race
+
 class LivingMixin:
 
     # makes it easy for mobs to know to attack PCs
@@ -98,8 +101,8 @@ class AzurCharacter(LivingMixin, DefaultCharacter):
     armor = 2
     fate_points = 2
 
-    char_class = AttributeProperty("Assault Rifle")
-    char_race = AttributeProperty("Doll")
+    char_class = AttributeProperty(Job.AR.value)
+    char_race = AttributeProperty(Race.DOLL.value)
 
     background = ""
     knowledge_dict = {}
