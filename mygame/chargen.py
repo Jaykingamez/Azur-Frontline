@@ -2,6 +2,7 @@ from evennia import EvMenu
 from menu_text import Background
 from enums.job import Job
 from enums.race import Race
+from character_tables import chargen_tables
 
 class DollCreator:
     def __init__(self):
@@ -25,6 +26,11 @@ class DollCreator:
         self.char_class = Job.AR
         self.char_race = Race.DOLL
 
+        self.age = ""
+        self.height = ""
+        self.left_eye = ""
+        self.right_eye = ""
+
     def update_precision(self, precision):
         self.precision = precision
 
@@ -44,61 +50,145 @@ class DollCreator:
         self.individuality = individuality
         self.fate_points = self.individuality / 1
 
-def node_appearance(caller, raw_string, **kwargs):
+def _set_hair_colour(caller, raw_string, **kwargs):
     pass
+
+def node_hair_colour(caller, raw_string, **kwargs):
+    pass
+
+def _set_eye_colour(caller, raw_string, **kwargs):
+    tmp_character = kwargs["tmp_character"]
+    choice = kwargs["choice"]
+    left_eye = kwargs["left_eye"]
+    right_eye = kwargs["right_eye"]
+
+    if choice == "heterochromia":
+        tmp_character.left_eye = left_eye
+        tmp_character.right_eye = right_eye
+    else:
+        tmp_character.left_eye = choice
+        tmp_character.right_eye = choice
+
+    return ("node_hair_colour", kwargs)
+
+def node_eye_colour(caller, raw_string, **kwargs):
+    tmp_character = kwargs["tmp_character"]
+    choice = kwargs["choice"]
+    left_eye = kwargs["left_eye"]
+    right_eye = kwargs["right_eye"]
+
+    text = ""
+
+    if left_eye:
+        text = f"""Your gaze momentarily flickers to your eyes, especially your eyelids. The colour was
+        familiar and foreign. Your left eye is {left_eye} colour whilst your right is"""
+    elif choice is "heterochromia":
+        text = f"""Your gaze momentarily flickers to your eyes, especially your eyelids. The colour was
+        familiar and foreign. Your left eye is"""
+    else:
+         text = f"""Your gaze momentarily flickers to your eyes, especially your eyelids. The colour was
+        familiar and foreign."""
+
+    options = []
+
+    for eye_colour in chargen_tables.appearance.eye_colour:
+        if not choice:
+            if eye_colour != "heterochromia":
+                options.append({
+                    "desc": ", ".join(eye_colour),
+                    "go_to": (_set_eye_colour, {"tmp_character" : tmp_character,
+                                            "choice" : eye_colour})
+                })
+            else:
+                options.append({
+                "desc": ", ".join(eye_colour),
+                "go_to": ("node_eye_colour", {"tmp_character" : tmp_character,
+                                        "choice" : eye_colour})
+            })
+        else:
+            if eye_colour != "heterochromia" and not left_eye:
+                options.append({
+                    "desc": ", ".join(eye_colour),
+                    "go_to": (_set_eye_colour, {"tmp_character" : tmp_character,
+                                            "choice": choice,
+                                            "left_eye" : eye_colour})
+                })
+            elif eye_colour != "heterochromia" and not right_eye:
+                options.append({
+                    "desc": ", ".join(eye_colour),
+                    "go_to": (_set_eye_colour, {"tmp_character" : tmp_character,
+                                            "choice": choice,
+                                            "left_eye" : left_eye,
+                                            "right_eye" : right_eye})
+                })
+    return text, options
+
+
+def _set_age_and_height(caller, raw_string, **kwargs):
+    tmp_character = kwargs["tmp_character"]
+    choice = kwargs["choice"]
+
+    tmp_character.age = choice[0]
+    tmp_character.height = choice[1]
+    return ("node_eye_colour", kwargs)
+
+def node_age_and_height(caller, raw_string, **kwargs):
+    tmp_character = kwargs["tmp_character"]
+    text = f"""As you hold your {tmp_character.char_class.value}, you look at a passing broken window.
+    A murky reflection that seemed familiar was shot back. Paying special attention to your body, you seemed
+    """
+
+    options = []
+
+    for age_and_height in chargen_tables.appearance.age_and_height:
+        options.append({
+            "desc": ", ".join(age_and_height),
+            "go_to": (_set_age_and_height, {"tmp_character" : tmp_character,
+                                       "choice" : age_and_height})
+        })
+
+    return text, options
 
 def _set_gun_type(caller, raw_string, **kwargs):
     choice = kwargs["choice"]
     tmp_character = kwargs["tmp_character"]
 
-    if choice is Job.AR:
-        tmp_character.char_class = Job.AR
-    elif choice is Job.SMG:
-        tmp_character.char_class = Job.SMG
-    elif choice is Job.RF:
-        tmp_character.char_class = Job.RF
-    elif choice is Job.HG:
-        tmp_character.char_class = Job.HG
-    elif choice is Job.MG:
-        tmp_character.char_class = Job.MG
-    elif choice is Job.SG:
-        tmp_character.char_class = Job.SG
-    else:
-        return ("node_select_gun", kwargs) # Something is very wrong
-    return ("node_appearance", kwargs)
+    tmp_character.char_class = choice
+    return ("node_age_and_height", kwargs)
 
 def node_select_gun(caller, raw_string, **kwargs):
+    tmp_character = kwargs["tmp_character"]
     text = "What's your favourite type of firearm?"
 
     options = [
         {
             "desc": "Assault Rifle",
-            "goto": ("_set_gun_type", {"tmp_character" : kwargs["tmp_character"],
+            "goto": (_set_gun_type, {"tmp_character" : tmp_character,
                                        "choice" : Job.AR})
         },
         {
             "desc": "Submachine Gun",
-            "goto": ("_set_gun_type", {"tmp_character" : kwargs["tmp_character"],
+            "goto": (_set_gun_type, {"tmp_character" : tmp_character,
                                        "choice" : Job.SMG})
         },
         {
             "desc": "Rifle",
-            "goto": ("_set_gun_type", {"tmp_character" : kwargs["tmp_character"],
+            "goto": (_set_gun_type, {"tmp_character" : tmp_character,
                                        "choice" : Job.RF})
         },
         {
             "desc": "Handgun",
-            "goto": ("_set_gun_type", {"tmp_character" : kwargs["tmp_character"],
+            "goto": (_set_gun_type, {"tmp_character" : tmp_character,
                                        "choice" : Job.HG})
         },
         {
             "desc": "Machine Gun",
-            "goto": ("_set_gun_type", {"tmp_character" : kwargs["tmp_character"],
+            "goto": (_set_gun_type, {"tmp_character" : tmp_character,
                                        "choice" : Job.MG})
         },
         {
             "desc": "Shotgun",
-            "goto": ("_set_gun_type", {"tmp_character" : kwargs["tmp_character"],
+            "goto": (_set_gun_type, {"tmp_character" : tmp_character,
                                        "choice" : Job.SG})
         }
     ]
